@@ -280,6 +280,8 @@
       padding: 1.125rem 1rem 1rem;
       box-shadow: 0 1px 5px rgba(0,0,0,0.06);
     }
+    .kpi-card--ttf  { border-top-color: var(--plum); }
+    .kpi-card--oar  { border-top-color: var(--blue); }
     .kpi-label {
       font-size: 0.62rem;
       font-weight: 700;
@@ -516,12 +518,12 @@
       cursor: pointer;
       transition: all 0.15s;
     }
-    .chart-toggle:hover { border-color: var(--orange); color: var(--orange); }
-    .chart-toggle.active {
-      background: var(--orange);
-      border-color: var(--orange);
-      color: var(--white);
-    }
+    .chart-toggle--hires:hover              { border-color: var(--orange); color: var(--orange); }
+    .chart-toggle--hires.active             { background: var(--orange); border-color: var(--orange); color: var(--white); }
+    .chart-toggle--ttf:hover                { border-color: var(--plum);   color: var(--plum); }
+    .chart-toggle--ttf.active               { background: var(--plum);   border-color: var(--plum);   color: var(--white); }
+    .chart-toggle--oar:hover                { border-color: var(--blue);  color: var(--blue); }
+    .chart-toggle--oar.active               { background: var(--blue);   border-color: var(--blue);   color: var(--white); }
     .chart-wrap {
       position: relative;
       height: 300px;
@@ -619,6 +621,24 @@
       cursor: pointer;
     }
     .chart-unselect-btn:hover { background: var(--ghost); }
+    .chart-apply-btn {
+      display: block;
+      width: calc(100% - 1.75rem);
+      margin: 0.5rem 0.875rem 0.625rem;
+      padding: 0.4rem 0;
+      font-family: var(--font);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--white);
+      background: var(--orange);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      position: sticky;
+      bottom: 0.5rem;
+      transition: opacity 0.15s;
+    }
+    .chart-apply-btn:hover { opacity: 0.85; }
 
     /* ── INSIGHTS PANEL ── */
     .insights-grid {
@@ -1439,17 +1459,6 @@
 
     return `<div class="chart-card">
       <div class="chart-header">
-        <div class="chart-toggles">
-          <button class="chart-toggle${chartMetrics.includes('hires') ? ' active' : ''}"
-            onclick="toggleChartMetric('hires', this)">Total Hires</button>
-          <button class="chart-toggle${chartMetrics.includes('ttf') ? ' active' : ''}"
-            onclick="toggleChartMetric('ttf', this)">Time to Fill</button>
-          <button class="chart-toggle${chartMetrics.includes('oar') ? ' active' : ''}"
-            onclick="toggleChartMetric('oar', this)">Acceptance Rate</button>
-        </div>
-      </div>
-      <div class="chart-recruiter-row">
-        <span class="chart-recruiter-label">Recruiters</span>
         <div class="chart-recruiter-wrap" id="recruiterDropdownWrap">
           <button class="chart-recruiter-btn" id="recruiterDropBtn"
             onclick="toggleRecruiterMenu(event)">${getChartBtnLabel()}</button>
@@ -1461,7 +1470,16 @@
             </label>
             <button class="chart-unselect-btn" onclick="handleUnselectAll()">Unselect All</button>
             ${items}
+            <button class="chart-apply-btn" onclick="applyRecruiterSelection()">Apply</button>
           </div>
+        </div>
+        <div class="chart-toggles">
+          <button class="chart-toggle chart-toggle--hires${chartMetrics.includes('hires') ? ' active' : ''}"
+            onclick="toggleChartMetric('hires', this)">Total Hires</button>
+          <button class="chart-toggle chart-toggle--ttf${chartMetrics.includes('ttf') ? ' active' : ''}"
+            onclick="toggleChartMetric('ttf', this)">Time to Fill</button>
+          <button class="chart-toggle chart-toggle--oar${chartMetrics.includes('oar') ? ' active' : ''}"
+            onclick="toggleChartMetric('oar', this)">Acceptance Rate</button>
         </div>
       </div>
       <div class="chart-wrap"><canvas id="recruiterChart"></canvas></div>
@@ -1593,11 +1611,9 @@
       checkbox.checked = true;
     }
     updateDropdownBtn();
-    initChart(getChartRows());
   }
 
   function handleRecruiterCheck(checkbox) {
-    const name    = checkbox.value;
     const allCb   = document.getElementById('checkAllRecruiters');
     const checked = [...document.querySelectorAll('#recruiterMenu input[type="checkbox"][value]')]
       .filter(cb => cb.checked).map(cb => cb.value);
@@ -1614,6 +1630,13 @@
     }
 
     updateDropdownBtn();
+  }
+
+  function applyRecruiterSelection() {
+    const menu = document.getElementById('recruiterMenu');
+    const btn  = document.getElementById('recruiterDropBtn');
+    if (menu) menu.classList.remove('open');
+    if (btn)  btn.classList.remove('open');
     initChart(getChartRows());
   }
 
@@ -1629,7 +1652,6 @@
     document.querySelectorAll('#recruiterMenu input[type="checkbox"][value]')
       .forEach(cb => { cb.checked = false; });
     updateDropdownBtn();
-    initChart(getChartRows());
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -1747,7 +1769,7 @@
     const hiresLabel   = isAll  ? `${hires}<span class="kpi-unit"> total</span>`  : `${hires}`;
 
     return `<div class="kpi-grid">
-      <div class="kpi-card">
+      <div class="kpi-card kpi-card--ttf">
         <div class="kpi-label">Avg Time to Fill</div>
         <div class="kpi-value">${ttfDisplay}</div>
         <div class="kpi-target">Target: <strong>≤ 45 days</strong></div>
@@ -1759,7 +1781,7 @@
         <div class="kpi-target">Target: <strong>≤ 7 days</strong></div>
         ${badge('speed', speed)}
       </div>
-      <div class="kpi-card">
+      <div class="kpi-card kpi-card--oar">
         <div class="kpi-label">Offer Acceptance Rate</div>
         <div class="kpi-value">${oarDisplay}</div>
         <div class="kpi-target">Target: <strong>≥ 80%</strong></div>
@@ -2114,7 +2136,7 @@
     if (isAll) {
       html += `<div class="section">
         <div class="section-header">
-          <div class="section-title">Team Dashboard</div>
+          <div class="section-title">Dashboard</div>
           <div class="section-line"></div>
           <span class="section-meta">Toggle metric to switch view</span>
         </div>
@@ -2228,7 +2250,9 @@
   });
 
   // Close recruiter dropdown when clicking outside
-  document.addEventListener('click', () => {
+  document.addEventListener('click', (e) => {
+    const wrap = document.getElementById('recruiterDropdownWrap');
+    if (wrap && wrap.contains(e.target)) return;
     const menu = document.getElementById('recruiterMenu');
     const btn  = document.getElementById('recruiterDropBtn');
     if (menu) menu.classList.remove('open');
