@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hanger O&amp;P | TA Recruiter Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --plum:      #403a60;
+      --orange:    #ff5f2f;
+      --blue:      #00b3f0;
+      --dark-gray: #4a4f54;
+      --mid-gray:  #6e6f72;
+      --ghost:     #f2f2f5;
+      --white:     #ffffff;
+      --font:      'IBM Plex Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: var(--ghost);
+      color: var(--dark-gray);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      background: var(--plum);
+      border-bottom: 3px solid var(--orange);
+      padding: 0 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.875rem 0;
+    }
+    .header-brand { display: flex; flex-direction: column; }
+    .header-title {
+      color: var(--white);
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      line-height: 1.25;
+    }
+    /* ── PERIOD SELECTOR (controls bar) ── */
+    .period-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .period-row {
+      display: flex;
+      align-items: center;
+      gap: 1.125rem;
+    }
+    .period-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.825rem;
+      font-weight: 400;
+      color: var(--dark-gray);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .period-check input[type="radio"] {
+      accent-color: var(--orange);
+      width: 13px;
+      height: 13px;
+      cursor: pointer;
+    }
+    .period-sub {
+      font-size: 0.7rem;
+      color: var(--mid-gray);
+      padding-left: 1px;
+    }
+    .controls-divider {
+      width: 1px;
+      height: 38px;
+      background: #e4e4e8;
+      flex-shrink: 0;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      flex-shrink: 0;
+    }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.45rem 0.875rem;
+      border: none;
+      border-radius: 4px;
+      font-family: var(--font);
+      font-size: 0.775rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+    .btn:hover  { opacity: 0.85; }
+    .btn:active { transform: scale(0.97); }
+    .btn-orange { background: var(--orange); color: var(--white); }
+    .btn-ghost  {
+      background: rgba(255,255,255,0.12);
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.2); }
+
+    /* ── CONTROLS BAR ── */
+    .controls-bar {
+      background: var(--white);
+      border-bottom: 1px solid #e4e4e8;
+      padding: 0 2rem;
+    }
+    .controls-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      padding: 0.625rem 0;
+      flex-wrap: wrap;
+    }
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .control-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--mid-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      white-space: nowrap;
+    }
+    .select-control {
+      font-family: var(--font);
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--dark-gray);
+      background: var(--white);
+      border: 1.5px solid #d4d4d9;
+      border-radius: 4px;
+      padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236e6f72' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.625rem center;
+      cursor: pointer;
+      min-width: 240px;
+    }
+    .select-control:focus {
+      outline: none;
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(255,95,47,0.12);
+    }
+    .file-info {
+      font-size: 0.72rem;
+      color: var(--mid-gray);
+      margin-left: auto;
+    }
+    .file-info strong { color: var(--dark-gray); font-weight: 600; }
+
+    #fileInput { display: none; }
+
+    /* ── MAIN CONTENT ── */
+    .main-content {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 1.75rem 2rem 2.5rem;
+      flex: 1;
+      width: 100%;
+    }
+
+    /* ── SECTIONS ── */
+    .section { margin-bottom: 2rem; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.875rem;
+    }
+    .section-title {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--orange);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      white-space: nowrap;
+    }
+    .section-line {
+      flex: 1;
+      height: 2px;
+      background: var(--orange);
+      opacity: 0.2;
+    }
+    .section-meta {
+      font-size: 0.7rem;
+      color: var(--mid-gray);
+      white-space: nowrap;
+    }
+
+    /* ── IDENTITY PANEL ── */
+    .identity-panel {
+      background: var(--white);
+      border-radius: 6px;
+      border-left: 4px solid var(--orange);
+      padding: 1.25rem 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem 1.5rem;
+      margin-bottom: 1.75rem;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+    }
+    .identity-field label {
+      display: block;
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--mid-gray);
+      margin-bottom: 0.3rem;
+    }
+    .identity-field .field-value {
+      font-size: 0.925rem;
+      font-weight: 600;
+      color: var(--dark-gray);
+    }
+    .identity-field input[type="text"] {
+      font-family: var(--font);
+      font-size: 0.875rem;
+      color: var(--dark-gray);
+      border: none;
+      border-bottom: 1.5px solid #d4d4d9;
+      background: transparent;
+      padding: 0.125rem 0;
+      width: 100%;
+      font-weight: 500;
+    }
+    .identity-field input[type="text"]:focus {
+      outline: none;
+      border-bottom-color: var(--orange);
+    }
+
+    /* ── KPI TILES ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+    }
+    .kpi-card {
+      background: var(--white);
+      border-radius: 6px;
+      border-top: 3px solid var(--orange);
+      padding: 1.125rem 1rem 1rem;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+    }
+    .kpi-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--mid-gray);
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+    .kpi-value {
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: var(--dark-gray);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+    .kpi-unit {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--mid-gray);
+    }
+    .kpi-target {
+      font-size: 0.68rem;
+      color: var(--mid-gray);
+      margin-bottom: 0.375rem;
+    }
+    .kpi-target strong { color: var(--dark-gray); font-weight: 600; }
+    .kpi-badge {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.2rem 0.55rem;
+      border-radius: 99px;
+    }
+
+    /* ── STATUS BADGES ── */
+    .badge-on-track { background: #dcfce7; color: #166534; }
+    .badge-at-risk  { background: #fef9c3; color: #854d0e; }
+    .badge-in-range { background: #dbeafe; color: #1e40af; }
+    .badge-behind   { background: #fff0eb; color: #c2410c; }
+
+    /* ── GOAL TRACKER TABLE ── */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 6px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.07);
+    }
+    .goal-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--white);
+      font-size: 0.835rem;
+    }
+    .goal-table thead tr { background: var(--plum); }
+    .goal-table thead th {
+      color: var(--white);
+      font-weight: 600;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      white-space: nowrap;
+    }
+    .goal-table tbody tr { border-bottom: 1px solid #f0f0f3; }
+    .goal-table tbody tr:last-child { border-bottom: none; }
+    .goal-table tbody tr:hover { background: #fafafa; }
+    .goal-table td {
+      padding: 0.7rem 1rem;
+      vertical-align: middle;
+    }
+    .goal-table .metric-name { font-weight: 600; color: var(--dark-gray); }
+    .goal-table .prior-year  { color: var(--mid-gray); font-size: 0.8rem; }
+    .goal-table .target-val  { font-weight: 600; color: var(--plum); }
+    .goal-table .actual-val  { font-weight: 700; color: var(--dark-gray); }
+    .goal-table input[type="text"] {
+      font-family: var(--font);
+      font-size: 0.775rem;
+      color: var(--dark-gray);
+      border: 1px solid #e4e4e8;
+      border-radius: 3px;
+      padding: 0.3rem 0.5rem;
+      width: 100%;
+      min-width: 130px;
+      background: var(--ghost);
+    }
+    .goal-table input[type="text"]:focus {
+      outline: none;
+      border-color: var(--orange);
+      background: var(--white);
+    }
+
+    /* ── STATUS CELL ── */
+    .status-pill {
+      display: inline-block;
+      font-size: 0.66rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.2rem 0.6rem;
+      border-radius: 99px;
+    }
+
+    /* ── BREAKDOWN GRID ── */
+    .breakdown-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .breakdown-card {
+      background: var(--white);
+      border-radius: 6px;
+      padding: 1.25rem 1.375rem;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+    }
+    .breakdown-card-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--plum);
+      margin-bottom: 1.125rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #f0f0f3;
+    }
+    .breakdown-subtitle {
+      font-size: 0.68rem;
+      font-weight: 400;
+      color: var(--mid-gray);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    /* Bar rows */
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      margin-bottom: 0.9rem;
+    }
+    .bar-row:last-child { margin-bottom: 0; }
+    .bar-label {
+      width: 106px;
+      font-size: 0.775rem;
+      font-weight: 500;
+      color: var(--dark-gray);
+      flex-shrink: 0;
+      text-align: right;
+      line-height: 1.3;
+    }
+    .bar-track {
+      flex: 1;
+      height: 10px;
+      background: #ebebef;
+      border-radius: 99px;
+      position: relative;
+      overflow: visible;
+    }
+    .bar-fill {
+      height: 100%;
+      background: var(--orange);
+      border-radius: 99px;
+      transition: width 0.45s ease;
+      min-width: 0;
+    }
+    .bar-fill-blue { background: var(--blue) !important; }
+    .target-marker {
+      position: absolute;
+      top: -4px;
+      bottom: -4px;
+      width: 2px;
+      background: var(--plum);
+      opacity: 0.35;
+      border-radius: 1px;
+    }
+    .target-marker::after {
+      content: attr(data-label);
+      position: absolute;
+      top: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font);
+      font-size: 0.58rem;
+      color: var(--plum);
+      white-space: nowrap;
+      opacity: 0.8;
+      font-weight: 600;
+    }
+    .bar-value {
+      width: 46px;
+      font-size: 0.775rem;
+      font-weight: 700;
+      color: var(--dark-gray);
+      flex-shrink: 0;
+    }
+
+    /* ── RECRUITER PERFORMANCE TABLE ── */
+    .perf-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--white);
+      font-size: 0.795rem;
+    }
+    .perf-table thead tr { background: var(--plum); }
+    .perf-table thead th {
+      color: var(--white);
+      font-weight: 600;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 0.65rem 0.875rem;
+      text-align: left;
+      white-space: nowrap;
+    }
+    .perf-table thead th.col-num { text-align: center; }
+    .perf-table tbody tr { border-bottom: 1px solid #f0f0f3; }
+    .perf-table tbody tr:last-child { border-bottom: none; }
+    .perf-table tbody tr:hover { background: #fafafa; }
+    .perf-table td {
+      padding: 0.575rem 0.875rem;
+      vertical-align: middle;
+    }
+    .perf-table td.col-num { text-align: center; }
+    .recruiter-name { font-weight: 600; color: var(--dark-gray); }
+
+    /* ── DEPT BADGES ── */
+    .dept-badge {
+      display: inline-block;
+      font-size: 0.63rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+    .dept-clinical   { background: #e0e7ff; color: #3730a3; }
+    .dept-allied     { background: #fce7f3; color: #9d174d; }
+    .dept-rcm        { background: #fef3c7; color: #92400e; }
+    .dept-operations { background: #d1fae5; color: #065f46; }
+
+    /* ── GOALS NEXT PERIOD TABLE ── */
+    .goals-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--white);
+      font-size: 0.835rem;
+    }
+    .goals-table thead tr { background: var(--plum); }
+    .goals-table thead th {
+      color: var(--white);
+      font-weight: 600;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 0.75rem 1rem;
+      text-align: left;
+    }
+    .goals-table tbody tr { border-bottom: 1px solid #f0f0f3; }
+    .goals-table tbody tr:last-child { border-bottom: none; }
+    .goals-table td { padding: 0.7rem 1rem; vertical-align: middle; }
+    .goals-table .goal-name   { font-weight: 600; color: var(--dark-gray); }
+    .goals-table .goal-target { font-weight: 600; color: var(--plum); }
+    .goals-table input[type="text"] {
+      font-family: var(--font);
+      font-size: 0.775rem;
+      color: var(--dark-gray);
+      border: 1px solid #e4e4e8;
+      border-radius: 3px;
+      padding: 0.3rem 0.5rem;
+      width: 100%;
+      background: var(--ghost);
+    }
+    .goals-table input[type="text"]:focus {
+      outline: none;
+      border-color: var(--orange);
+      background: var(--white);
+    }
+
+    /* ── MANAGER NOTES ── */
+    .notes-area {
+      width: 100%;
+      font-family: var(--font);
+      font-size: 0.875rem;
+      color: var(--dark-gray);
+      border: 1.5px solid #e4e4e8;
+      border-radius: 6px;
+      padding: 0.875rem 1rem;
+      resize: vertical;
+      min-height: 110px;
+      background: var(--white);
+      line-height: 1.6;
+    }
+    .notes-area:focus {
+      outline: none;
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(255,95,47,0.1);
+    }
+
+    /* ── SIGNATURE BLOCK ── */
+    .sig-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    .sig-block {
+      background: var(--white);
+      border-radius: 6px;
+      padding: 1.375rem 1.5rem;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+    }
+    .sig-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--mid-gray);
+      margin-bottom: 1.875rem;
+    }
+    .sig-line {
+      border-top: 1.5px solid #d4d4d9;
+      padding-top: 0.375rem;
+      font-size: 0.72rem;
+      color: var(--mid-gray);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--plum) 100%);
+      padding: 0.875rem 2rem;
+      text-align: center;
+      color: rgba(255,255,255,0.7);
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+    }
+    .footer strong { color: var(--white); font-weight: 600; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--dark-gray);
+      color: var(--white);
+      font-family: var(--font);
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.75rem 1.125rem;
+      border-radius: 6px;
+      border-left: 4px solid var(--orange);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+      z-index: 9999;
+      animation: toastIn 0.2s ease, toastOut 0.3s ease 2.7s forwards;
+      max-width: 340px;
+      line-height: 1.4;
+    }
+    @keyframes toastIn  { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes toastOut { from { opacity: 1; } to { opacity: 0; pointer-events: none; } }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 960px) {
+      .kpi-grid       { grid-template-columns: repeat(3, 1fr); }
+      .breakdown-grid { grid-template-columns: 1fr; }
+      .identity-panel { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 620px) {
+      .kpi-grid    { grid-template-columns: repeat(2, 1fr); }
+      .sig-grid    { grid-template-columns: 1fr; }
+      .main-content { padding: 1rem; }
+      .header-actions { flex-wrap: wrap; }
+    }
+
+    /* ── PRINT ── */
+    @media print {
+      .controls-bar,
+      .header-actions,
+      #fileInput { display: none !important; }
+
+      .page-header {
+        position: relative;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .footer {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .kpi-card,
+      .breakdown-card,
+      .sig-block {
+        box-shadow: none !important;
+        border: 1px solid #e4e4e8 !important;
+      }
+      .table-wrap { box-shadow: none !important; }
+      .kpi-grid         { grid-template-columns: repeat(5, 1fr) !important; }
+      .breakdown-grid   { grid-template-columns: 1fr 1fr !important; }
+      body              { background: white !important; }
+      .section          { break-inside: avoid; }
+      .goal-table input,
+      .goals-table input,
+      .notes-area {
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+      }
+      .bar-fill {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .badge-on-track,
+      .badge-at-risk,
+      .badge-in-range,
+      .badge-behind,
+      .dept-badge,
+      .status-pill {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── PAGE HEADER ── -->
+  <header class="page-header">
+    <div class="header-inner">
+      <div class="header-brand">
+        <div class="header-title">Hanger O&amp;P &nbsp;|&nbsp; Talent Acquisition Dashboard</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-orange" onclick="document.getElementById('fileInput').click()">
+          &#8679;&nbsp; Import Excel File
+        </button>
+        <button class="btn btn-ghost" onclick="window.print()">
+          &#128438;&nbsp; Save as PDF / Print
+        </button>
+        <input type="file" id="fileInput" accept=".xlsx" onchange="handleFileImport(event)">
+      </div>
+    </div>
+  </header>
+
+  <!-- ── CONTROLS BAR ── -->
+  <div class="controls-bar">
+    <div class="controls-inner">
+      <div class="period-group">
+        <div class="period-row">
+          <span class="control-label">Review Period</span>
+          <label class="period-check"><input type="radio" name="reviewPeriod" value="monthly" onchange="handlePeriodChange(this.value)"> Monthly</label>
+          <label class="period-check"><input type="radio" name="reviewPeriod" value="quarterly" checked onchange="handlePeriodChange(this.value)"> Quarterly</label>
+          <label class="period-check"><input type="radio" name="reviewPeriod" value="annual" onchange="handlePeriodChange(this.value)"> Annual</label>
+        </div>
+        <div class="period-sub" id="periodSub">Q2 2025 &nbsp;&middot;&nbsp; April 1 – June 30, 2025</div>
+      </div>
+      <div class="controls-divider"></div>
+      <div class="control-group">
+        <span class="control-label">Recruiter</span>
+        <select class="select-control" id="recruiterSelect" onchange="handleSelectChange(this.value)">
+          <option value="all">All Recruiters</option>
+          <!-- recruiter names populated by JS -->
+        </select>
+      </div>
+      <div class="file-info" id="fileInfo"></div>
+    </div>
+  </div>
+
+  <!-- ── MAIN CONTENT (rendered by JS) ── -->
+  <main class="main-content" id="mainContent">
+    <div style="text-align:center;padding:4rem 0;color:var(--mid-gray);font-size:0.875rem;">Loading dashboard…</div>
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <strong>Hanger Inc.</strong> &nbsp;|&nbsp; Talent Acquisition &nbsp;|&nbsp; Confidential — Internal Use Only
+  </footer>
+
+
+  <script>
+  // ════════════════════════════════════════════════════════════════
+  // SEED DATA — 16 recruiters (hardcoded fallback / demo data)
+  // ════════════════════════════════════════════════════════════════
+  const SEED_DATA = [
+    {
+      name:'Jordan Mills', department:'Clinical', manager:'David Johnson', region:'Southeast',
+      reqTitle:'Certified Prosthetist Orthotist', reqCode:'REQ-CLN-2501',
+      reqOpenDate:'2025-04-28', reqCloseDate:'2025-06-06',
+      reqsOpened:17, reqsClosed:10, activeOpenReqs:7,
+      totalSubmissions:63, hmInterviews:20,
+      offersExtended:15, offersAccepted:12, offersDeclined:3,
+      offerExtendedDate:'2025-06-09', offerAcceptedDate:'2025-06-15', offerDeclinedDate:'',
+      sourceReferral:2, sourceJobBoards:4, sourceLinkedIn:4, sourceAgency:2, sourceCampus:0
+    },
+    {
+      name:'Priya Nair', department:'Clinical', manager:'David Johnson', region:'Southwest',
+      reqTitle:'Clinical Specialist', reqCode:'REQ-CLN-2502',
+      reqOpenDate:'2025-04-14', reqCloseDate:'2025-05-14',
+      reqsOpened:16, reqsClosed:12, activeOpenReqs:4,
+      totalSubmissions:63, hmInterviews:24,
+      offersExtended:15, offersAccepted:10, offersDeclined:5,
+      offerExtendedDate:'2025-05-23', offerAcceptedDate:'2025-05-26', offerDeclinedDate:'',
+      sourceReferral:1, sourceJobBoards:2, sourceLinkedIn:6, sourceAgency:1, sourceCampus:0
+    },
+    {
+      name:'Marcus Chen', department:'Clinical', manager:'David Johnson', region:'Midwest',
+      reqTitle:'Orthotist', reqCode:'REQ-CLN-2503',
+      reqOpenDate:'2025-04-06', reqCloseDate:'2025-05-15',
+      reqsOpened:17, reqsClosed:12, activeOpenReqs:5,
+      totalSubmissions:78, hmInterviews:21,
+      offersExtended:14, offersAccepted:12, offersDeclined:2,
+      offerExtendedDate:'2025-05-08', offerAcceptedDate:'2025-05-11', offerDeclinedDate:'',
+      sourceReferral:2, sourceJobBoards:4, sourceLinkedIn:4, sourceAgency:2, sourceCampus:0
+    },
+    {
+      name:'Danielle Brooks', department:'Clinical', manager:'David Johnson', region:'Northeast',
+      reqTitle:'Lead Prosthetist', reqCode:'REQ-CLN-2504',
+      reqOpenDate:'2025-04-21', reqCloseDate:'2025-06-14',
+      reqsOpened:17, reqsClosed:12, activeOpenReqs:5,
+      totalSubmissions:65, hmInterviews:20,
+      offersExtended:13, offersAccepted:12, offersDeclined:1,
+      offerExtendedDate:'2025-06-01', offerAcceptedDate:'2025-06-04', offerDeclinedDate:'',
+      sourceReferral:2, sourceJobBoards:4, sourceLinkedIn:4, sourceAgency:2, sourceCampus:0
+    },
+    {
+      name:'Tyler Owens', department:'Allied Health', manager:'Meera Patel', region:'Southeast',
+      reqTitle:'Physical Therapist', reqCode:'REQ-AH-2501',
+      reqOpenDate:'2025-05-29', reqCloseDate:'2025-06-20',
+      reqsOpened:17, reqsClosed:13, activeOpenReqs:4,
+      totalSubmissions:51, hmInterviews:19,
+      offersExtended:14, offersAccepted:14, offersDeclined:0,
+      offerExtendedDate:'2025-06-26', offerAcceptedDate:'2025-07-02', offerDeclinedDate:'',
+      sourceReferral:3, sourceJobBoards:7, sourceLinkedIn:2, sourceAgency:1, sourceCampus:1
+    },
+    {
+      name:'Sofia Reyes', department:'Allied Health', manager:'Meera Patel', region:'Southwest',
+      reqTitle:'Occupational Therapist', reqCode:'REQ-AH-2502',
+      reqOpenDate:'2025-05-25', reqCloseDate:'2025-06-30',
+      reqsOpened:19, reqsClosed:17, activeOpenReqs:2,
+      totalSubmissions:52, hmInterviews:18,
+      offersExtended:17, offersAccepted:12, offersDeclined:5,
+      offerExtendedDate:'2025-06-22', offerAcceptedDate:'2025-06-27', offerDeclinedDate:'',
+      sourceReferral:3, sourceJobBoards:5, sourceLinkedIn:2, sourceAgency:1, sourceCampus:1
+    },
+    {
+      name:'Kevin Park', department:'Allied Health', manager:'Meera Patel', region:'West',
+      reqTitle:'Allied Health Tech', reqCode:'REQ-AH-2503',
+      reqOpenDate:'2025-06-04', reqCloseDate:'2025-06-30',
+      reqsOpened:20, reqsClosed:13, activeOpenReqs:7,
+      totalSubmissions:60, hmInterviews:22,
+      offersExtended:16, offersAccepted:11, offersDeclined:5,
+      offerExtendedDate:'2025-06-28', offerAcceptedDate:'2025-06-30', offerDeclinedDate:'',
+      sourceReferral:3, sourceJobBoards:4, sourceLinkedIn:2, sourceAgency:1, sourceCampus:1
+    },
+    {
+      name:'Amber Nguyen', department:'Allied Health', manager:'Meera Patel', region:'Midwest',
+      reqTitle:'Rehab Specialist', reqCode:'REQ-AH-2504',
+      reqOpenDate:'2025-05-01', reqCloseDate:'2025-05-20',
+      reqsOpened:18, reqsClosed:13, activeOpenReqs:5,
+      totalSubmissions:61, hmInterviews:23,
+      offersExtended:17, offersAccepted:12, offersDeclined:5,
+      offerExtendedDate:'2025-06-16', offerAcceptedDate:'2025-06-17', offerDeclinedDate:'',
+      sourceReferral:3, sourceJobBoards:5, sourceLinkedIn:2, sourceAgency:1, sourceCampus:1
+    },
+    {
+      name:'Rachel Kim', department:'RCM', manager:'Lisa Evans', region:'National',
+      reqTitle:'Revenue Cycle Specialist', reqCode:'REQ-RCM-2501',
+      reqOpenDate:'2025-04-26', reqCloseDate:'2025-05-19',
+      reqsOpened:15, reqsClosed:11, activeOpenReqs:4,
+      totalSubmissions:44, hmInterviews:17,
+      offersExtended:12, offersAccepted:12, offersDeclined:0,
+      offerExtendedDate:'2025-05-30', offerAcceptedDate:'2025-05-31', offerDeclinedDate:'',
+      sourceReferral:2, sourceJobBoards:7, sourceLinkedIn:2, sourceAgency:0, sourceCampus:1
+    },
+    {
+      name:'Brandon Scott', department:'RCM', manager:'Lisa Evans', region:'National',
+      reqTitle:'RCM Analyst', reqCode:'REQ-RCM-2502',
+      reqOpenDate:'2025-05-13', reqCloseDate:'2025-05-29',
+      reqsOpened:13, reqsClosed:10, activeOpenReqs:3,
+      totalSubmissions:38, hmInterviews:17,
+      offersExtended:13, offersAccepted:9, offersDeclined:4,
+      offerExtendedDate:'2025-06-23', offerAcceptedDate:'2025-06-27', offerDeclinedDate:'',
+      sourceReferral:1, sourceJobBoards:7, sourceLinkedIn:1, sourceAgency:0, sourceCampus:0
+    },
+    {
+      name:'Jasmine Powell', department:'RCM', manager:'Lisa Evans', region:'National',
+      reqTitle:'RCM Coordinator', reqCode:'REQ-RCM-2503',
+      reqOpenDate:'2025-05-23', reqCloseDate:'2025-06-20',
+      reqsOpened:14, reqsClosed:13, activeOpenReqs:1,
+      totalSubmissions:49, hmInterviews:17,
+      offersExtended:12, offersAccepted:11, offersDeclined:1,
+      offerExtendedDate:'2025-06-28', offerAcceptedDate:'2025-07-01', offerDeclinedDate:'',
+      sourceReferral:2, sourceJobBoards:6, sourceLinkedIn:2, sourceAgency:0, sourceCampus:1
+    },
+    {
+      name:'Chloe Martinez', department:'RCM', manager:'Lisa Evans', region:'National',
+      reqTitle:'Billing Specialist', reqCode:'REQ-RCM-2504',
+      reqOpenDate:'2025-04-07', reqCloseDate:'2025-05-11',
+      reqsOpened:13, reqsClosed:11, activeOpenReqs:2,
+      totalSubmissions:43, hmInterviews:17,
+      offersExtended:12, offersAccepted:10, offersDeclined:2,
+      offerExtendedDate:'2025-05-26', offerAcceptedDate:'2025-06-02', offerDeclinedDate:'',
+      sourceReferral:1, sourceJobBoards:8, sourceLinkedIn:1, sourceAgency:0, sourceCampus:0
+    },
+    {
+      name:'Derek Washington', department:'Operations', manager:'Sandra Lee', region:'Southwest',
+      reqTitle:'Operations Manager', reqCode:'REQ-OPS-2501',
+      reqOpenDate:'2025-05-25', reqCloseDate:'2025-06-21',
+      reqsOpened:19, reqsClosed:18, activeOpenReqs:1,
+      totalSubmissions:35, hmInterviews:16,
+      offersExtended:14, offersAccepted:13, offersDeclined:1,
+      offerExtendedDate:'2025-06-23', offerAcceptedDate:'2025-06-25', offerDeclinedDate:'',
+      sourceReferral:4, sourceJobBoards:8, sourceLinkedIn:0, sourceAgency:0, sourceCampus:1
+    },
+    {
+      name:'Leah Thompson', department:'Operations', manager:'Sandra Lee', region:'Midwest',
+      reqTitle:'Operations Coordinator', reqCode:'REQ-OPS-2502',
+      reqOpenDate:'2025-04-24', reqCloseDate:'2025-05-06',
+      reqsOpened:21, reqsClosed:18, activeOpenReqs:3,
+      totalSubmissions:41, hmInterviews:16,
+      offersExtended:16, offersAccepted:14, offersDeclined:2,
+      offerExtendedDate:'2025-06-13', offerAcceptedDate:'2025-06-18', offerDeclinedDate:'',
+      sourceReferral:5, sourceJobBoards:6, sourceLinkedIn:1, sourceAgency:0, sourceCampus:2
+    },
+    {
+      name:'Ethan Rivera', department:'Operations', manager:'Sandra Lee', region:'West',
+      reqTitle:'Supply Chain Coordinator', reqCode:'REQ-OPS-2503',
+      reqOpenDate:'2025-04-17', reqCloseDate:'2025-05-17',
+      reqsOpened:21, reqsClosed:16, activeOpenReqs:5,
+      totalSubmissions:33, hmInterviews:18,
+      offersExtended:16, offersAccepted:13, offersDeclined:3,
+      offerExtendedDate:'2025-06-05', offerAcceptedDate:'2025-06-12', offerDeclinedDate:'',
+      sourceReferral:3, sourceJobBoards:9, sourceLinkedIn:0, sourceAgency:0, sourceCampus:1
+    },
+    {
+      name:'Monica Grant', department:'Operations', manager:'Sandra Lee', region:'Northeast',
+      reqTitle:'Administrative Coordinator', reqCode:'REQ-OPS-2504',
+      reqOpenDate:'2025-05-07', reqCloseDate:'2025-05-22',
+      reqsOpened:18, reqsClosed:18, activeOpenReqs:1,
+      totalSubmissions:39, hmInterviews:16,
+      offersExtended:16, offersAccepted:14, offersDeclined:2,
+      offerExtendedDate:'2025-05-27', offerAcceptedDate:'2025-06-02', offerDeclinedDate:'',
+      sourceReferral:4, sourceJobBoards:7, sourceLinkedIn:1, sourceAgency:0, sourceCampus:2
+    }
+  ];
+
+  // ════════════════════════════════════════════════════════════════
+  // STATE
+  // ════════════════════════════════════════════════════════════════
+  let currentData    = [...SEED_DATA];
+  let selectedValue  = 'all';
+
+  // ════════════════════════════════════════════════════════════════
+  // UTILITIES
+  // ════════════════════════════════════════════════════════════════
+  function parseDate(str) {
+    if (str === null || str === undefined || str === '') return null;
+    if (typeof str === 'number') {
+      // Excel serial date
+      const d = new Date(Math.round((str - 25569) * 86400000));
+      return isNaN(d.getTime()) ? null : d;
+    }
+    if (str instanceof Date) return isNaN(str.getTime()) ? null : str;
+    const d = new Date(str);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  function daysBetween(a, b) {
+    const d1 = parseDate(a);
+    const d2 = parseDate(b);
+    if (!d1 || !d2) return null;
+    const diff = Math.round((d2 - d1) / 86400000);
+    return diff >= 0 ? diff : null;
+  }
+
+  function fmtPct(n) {
+    if (n === null || n === undefined || isNaN(n)) return 'N/A';
+    return n.toFixed(1) + '%';
+  }
+
+  function getDeptClass(dept) {
+    if (!dept) return '';
+    const d = dept.toLowerCase();
+    if (d === 'clinical')            return 'dept-clinical';
+    if (d.includes('allied'))        return 'dept-allied';
+    if (d === 'rcm')                 return 'dept-rcm';
+    if (d === 'operations')          return 'dept-operations';
+    return '';
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // NOTES — localStorage persistence
+  // ════════════════════════════════════════════════════════════════
+  function saveNotes() {
+    const notes = {};
+    document.querySelectorAll('[data-note-key]').forEach(el => {
+      notes[el.dataset.noteKey] = el.value;
+    });
+    try { localStorage.setItem('hanger_notes_' + selectedValue, JSON.stringify(notes)); } catch(e) {}
+  }
+
+  function restoreNotes() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('hanger_notes_' + selectedValue) || '{}');
+      document.querySelectorAll('[data-note-key]').forEach(el => {
+        if (saved[el.dataset.noteKey] !== undefined) el.value = saved[el.dataset.noteKey];
+      });
+    } catch(e) {}
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // METRIC CALCULATIONS
+  // ════════════════════════════════════════════════════════════════
+  function calcAvgTTF(rows) {
+    const vals = rows
+      .map(r => daysBetween(r.reqOpenDate, r.reqCloseDate))
+      .filter(d => d !== null);
+    if (!vals.length) return null;
+    return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+  }
+
+  function calcSubmittalSpeed(rows) {
+    const vals = rows
+      .map(r => daysBetween(r.reqOpenDate, r.offerExtendedDate))
+      .filter(d => d !== null);
+    if (!vals.length) return null;
+    return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+  }
+
+  function calcOAR(rows) {
+    const ext = rows.reduce((a, r) => a + (r.offersExtended || 0), 0);
+    const acc = rows.reduce((a, r) => a + (r.offersAccepted || 0), 0);
+    if (!ext) return null;
+    return parseFloat((acc / ext * 100).toFixed(1));
+  }
+
+  function calcActiveReqs(rows) {
+    return rows.reduce((a, r) => a + (r.activeOpenReqs || 0), 0);
+  }
+
+  function calcTotalHires(rows) {
+    return rows.reduce((a, r) => a + (r.offersAccepted || 0), 0);
+  }
+
+  function calcSourceBreakdown(rows) {
+    const ref   = rows.reduce((a, r) => a + (r.sourceReferral  || 0), 0);
+    const jb    = rows.reduce((a, r) => a + (r.sourceJobBoards || 0), 0);
+    const li    = rows.reduce((a, r) => a + (r.sourceLinkedIn  || 0), 0);
+    const ag    = rows.reduce((a, r) => a + (r.sourceAgency    || 0), 0);
+    const cp    = rows.reduce((a, r) => a + (r.sourceCampus    || 0), 0);
+    const total = ref + jb + li + ag + cp;
+    if (!total) return { ref:0, jb:0, li:0, ag:0, cp:0, total:0 };
+    return {
+      ref: parseFloat((ref / total * 100).toFixed(1)),
+      jb:  parseFloat((jb  / total * 100).toFixed(1)),
+      li:  parseFloat((li  / total * 100).toFixed(1)),
+      ag:  parseFloat((ag  / total * 100).toFixed(1)),
+      cp:  parseFloat((cp  / total * 100).toFixed(1)),
+      total
+    };
+  }
+
+  function calcTTFbyDept(rows) {
+    return ['Clinical', 'Allied Health', 'RCM', 'Operations'].map(dept => ({
+      dept,
+      ttf: calcAvgTTF(rows.filter(r => r.department === dept))
+    }));
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // STATUS LOGIC
+  // ════════════════════════════════════════════════════════════════
+  const STATUS = {
+    'on-track': { label: 'On Track',  cls: 'badge-on-track' },
+    'at-risk':  { label: 'At Risk',   cls: 'badge-at-risk'  },
+    'in-range': { label: 'In Range',  cls: 'badge-in-range' },
+    'behind':   { label: 'Behind',    cls: 'badge-behind'   }
+  };
+
+  function getStatus(metric, value) {
+    if (value === null || value === undefined || isNaN(value)) return 'at-risk';
+    switch (metric) {
+      case 'ttf':
+        return value <= 45 ? 'on-track' : value <= 54 ? 'at-risk' : 'behind';
+      case 'speed':
+        return value <= 7  ? 'on-track' : value <= 10 ? 'at-risk' : 'behind';
+      case 'oar':
+        return value >= 80 ? 'on-track' : value >= 70 ? 'at-risk' : 'behind';
+      case 'active':
+        return (value >= 8 && value <= 15) ? 'in-range'
+             : (value >= 5 && value <= 18) ? 'at-risk'
+             : 'behind';
+      case 'referral':
+        return value >= 15 ? 'on-track' : value >= 10 ? 'at-risk' : 'behind';
+      case 'hires':
+        return value >= 10 ? 'on-track' : value >= 7  ? 'at-risk' : 'behind';
+      default:
+        return 'at-risk';
+    }
+  }
+
+  function badge(metric, value) {
+    const s = getStatus(metric, value);
+    const { label, cls } = STATUS[s];
+    return `<span class="kpi-badge ${cls}">${label}</span>`;
+  }
+
+  function statusPill(metric, value) {
+    const s = getStatus(metric, value);
+    const { label, cls } = STATUS[s];
+    return `<span class="status-pill ${cls}">${label}</span>`;
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // DROPDOWN
+  // ════════════════════════════════════════════════════════════════
+  function populateDropdown() {
+    const sel = document.getElementById('recruiterSelect');
+    while (sel.options.length > 1) sel.remove(1);
+    currentData.forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = r.name;
+      opt.textContent = r.name;
+      sel.appendChild(opt);
+    });
+    const still = [...sel.options].find(o => o.value === selectedValue);
+    sel.value = still ? selectedValue : 'all';
+    selectedValue = sel.value;
+  }
+
+  function handleSelectChange(value) {
+    selectedValue = value;
+    renderDashboard();
+  }
+
+  const PERIOD_LABELS = {
+    monthly:   'April 2025 &nbsp;&middot;&nbsp; April 1 – April 30, 2025',
+    quarterly: 'Q2 2025 &nbsp;&middot;&nbsp; April 1 – June 30, 2025',
+    annual:    'FY 2025 &nbsp;&middot;&nbsp; January 1 – December 31, 2025'
+  };
+
+  function handlePeriodChange(value) {
+    const sub = document.getElementById('periodSub');
+    if (sub) sub.innerHTML = PERIOD_LABELS[value] || '';
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // EXCEL IMPORT
+  // ════════════════════════════════════════════════════════════════
+  function handleFileImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const wb  = XLSX.read(e.target.result, { type: 'array', cellDates: true });
+        const ws  = wb.Sheets['Recruiter Data'] || wb.Sheets[wb.SheetNames[0]];
+        const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+        // Row index 4 = header row; data starts at index 5
+        const headers = (raw[4] || []).map(h => (h || '').toString().trim().toLowerCase());
+        const col = name => headers.indexOf(name.toLowerCase().trim());
+
+        const data = [];
+        for (let i = 5; i <= 20 && i < raw.length; i++) {
+          const row = raw[i];
+          if (!row || !row[col('recruiter name')]) continue;
+          const g = idx => (idx >= 0 ? row[idx] : '');
+          const n = idx => parseInt(g(idx)) || 0;
+          data.push({
+            name:              g(col('recruiter name')),
+            department:        g(col('department')),
+            manager:           g(col('manager')),
+            region:            g(col('region')),
+            reqTitle:          g(col('posted job req title')),
+            reqCode:           g(col('job req code')),
+            reqOpenDate:       g(col('req open date')),
+            reqCloseDate:      g(col('req close date')),
+            reqsOpened:        n(col('reqs opened')),
+            reqsClosed:        n(col('reqs closed')),
+            activeOpenReqs:    n(col('active open reqs')),
+            totalSubmissions:  n(col('total submissions')),
+            hmInterviews:      n(col('hm interviews scheduled')),
+            offersExtended:    n(col('offers extended')),
+            offersAccepted:    n(col('offers accepted')),
+            offersDeclined:    n(col('offers declined')),
+            offerExtendedDate: g(col('offer extended date')),
+            offerAcceptedDate: g(col('offer accepted date')),
+            offerDeclinedDate: g(col('offer declined date')),
+            sourceReferral:    n(col('source: referral')),
+            sourceJobBoards:   n(col('source: job boards')),
+            sourceLinkedIn:    n(col('source: linkedin')),
+            sourceAgency:      n(col('source: agency')),
+            sourceCampus:      n(col('source: campus/direct')),
+          });
+        }
+
+        if (data.length > 0) {
+          currentData   = data;
+          selectedValue = 'all';
+          populateDropdown();
+          renderDashboard();
+          document.getElementById('fileInfo').innerHTML =
+            `<strong>${file.name}</strong> &nbsp;&middot;&nbsp; ${data.length} recruiters`;
+          showToast(`File imported — ${data.length} recruiter records loaded`);
+        } else {
+          showToast('No data found. Check that the sheet is named "Recruiter Data" and headers are on row 5.');
+        }
+      } catch(err) {
+        console.error(err);
+        showToast('Error reading file: ' + err.message);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+    event.target.value = '';
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // RENDER — KPI TILES
+  // ════════════════════════════════════════════════════════════════
+  function renderKPIs(rows) {
+    const isAll  = selectedValue === 'all';
+    const n      = rows.length || 1;
+    const ttf    = calcAvgTTF(rows);
+    const speed  = calcSubmittalSpeed(rows);
+    const oar    = calcOAR(rows);
+    const active = calcActiveReqs(rows);
+    const hires  = calcTotalHires(rows);
+
+    // For status checks use per-recruiter averages when viewing all
+    const activeStatus = isAll ? active / n : active;
+    const hiresStatus  = isAll ? hires  / n : hires;
+
+    const ttfDisplay   = ttf    !== null ? `${ttf}<span class="kpi-unit"> days</span>` : '<span class="kpi-unit">N/A</span>';
+    const speedDisplay = speed  !== null ? `${speed}<span class="kpi-unit"> days</span>` : '<span class="kpi-unit">N/A</span>';
+    const oarDisplay   = oar    !== null ? `${oar}<span class="kpi-unit">%</span>` : '<span class="kpi-unit">N/A</span>';
+    const activeLabel  = isAll  ? `${active}<span class="kpi-unit"> total</span>` : `${active}<span class="kpi-unit"> reqs</span>`;
+    const hiresLabel   = isAll  ? `${hires}<span class="kpi-unit"> total</span>`  : `${hires}`;
+
+    return `<div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Time to Fill</div>
+        <div class="kpi-value">${ttfDisplay}</div>
+        <div class="kpi-target">Target: <strong>≤ 45 days</strong></div>
+        ${badge('ttf', ttf)}
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Submittal → HM Review</div>
+        <div class="kpi-value">${speedDisplay}</div>
+        <div class="kpi-target">Target: <strong>≤ 7 days</strong></div>
+        ${badge('speed', speed)}
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Offer Acceptance Rate</div>
+        <div class="kpi-value">${oarDisplay}</div>
+        <div class="kpi-target">Target: <strong>≥ 80%</strong></div>
+        ${badge('oar', oar)}
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Active Req Load</div>
+        <div class="kpi-value">${activeLabel}</div>
+        <div class="kpi-target">Target: <strong>8–15 per recruiter</strong></div>
+        ${badge('active', activeStatus)}
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Hires</div>
+        <div class="kpi-value">${hiresLabel}</div>
+        <div class="kpi-target">Target: <strong>≥ 10 per recruiter</strong></div>
+        ${badge('hires', hiresStatus)}
+      </div>
+    </div>`;
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // RENDER — GOAL TRACKER
+  // ════════════════════════════════════════════════════════════════
+  function renderGoalTracker(rows) {
+    const isAll  = selectedValue === 'all';
+    const n      = rows.length || 1;
+    const ttf    = calcAvgTTF(rows);
+    const speed  = calcSubmittalSpeed(rows);
+    const oar    = calcOAR(rows);
+    const active = calcActiveReqs(rows);
+    const src    = calcSourceBreakdown(rows);
+    const hires  = calcTotalHires(rows);
+
+    // Per-recruiter averages for team-level status comparisons
+    const avgActive = isAll ? Math.round(active / n) : active;
+    const avgHires  = isAll ? parseFloat((hires  / n).toFixed(1)) : hires;
+
+    const activeActual = isAll ? `${avgActive} avg / recruiter` : `${active} reqs`;
+    const hiresActual  = isAll ? `${hires} total (${avgHires} avg)` : `${hires}`;
+
+    const goalRows = [
+      {
+        metric: 'ttf',     name: 'Time to Fill (TTF)',
+        priorYear: '52 days', target: '≤ 45 days',
+        actual: ttf !== null ? `${ttf} days` : 'N/A',
+        statusVal: ttf
+      },
+      {
+        metric: 'speed',   name: 'Submittal → HM Review',
+        priorYear: '10 days', target: '≤ 7 days',
+        actual: speed !== null ? `${speed} days` : 'N/A',
+        statusVal: speed
+      },
+      {
+        metric: 'oar',     name: 'Offer Acceptance Rate',
+        priorYear: '74%',     target: '≥ 80%',
+        actual: oar !== null ? `${oar}%` : 'N/A',
+        statusVal: oar
+      },
+      {
+        metric: 'active',  name: 'Active Req Load',
+        priorYear: '12 reqs', target: '8–15 reqs',
+        actual: activeActual,
+        statusVal: avgActive
+      },
+      {
+        metric: 'referral', name: 'Source of Hire – Referral %',
+        priorYear: '12%',     target: '≥ 15%',
+        actual: src.total ? `${src.ref}%` : 'N/A',
+        statusVal: src.ref
+      },
+      {
+        metric: 'hires',   name: 'Total Hires',
+        priorYear: '8',       target: '≥ 10',
+        actual: hiresActual,
+        statusVal: avgHires
+      }
+    ];
+
+    const trs = goalRows.map((g, i) => `
+      <tr>
+        <td class="metric-name">${g.name}</td>
+        <td class="prior-year">${g.priorYear}</td>
+        <td class="target-val">${g.target}</td>
+        <td class="actual-val">${g.actual}</td>
+        <td>${statusPill(g.metric, g.statusVal)}</td>
+        <td><input type="text" placeholder="Add note or action item…"
+              data-note-key="goal-${i}" onblur="saveNotes()"></td>
+      </tr>`).join('');
+
+    return `<div class="table-wrap">
+      <table class="goal-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Prior Year Actual</th>
+            <th>This Period Target</th>
+            <th>Actual Result</th>
+            <th>Status</th>
+            <th>Notes / Action Items</th>
+          </tr>
+        </thead>
+        <tbody>${trs}</tbody>
+      </table>
+    </div>`;
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // RENDER — PERFORMANCE BREAKDOWN
+  // ════════════════════════════════════════════════════════════════
+  function renderBreakdown(rows) {
+    // TTF by dept — always calculate from filtered rows
+    const deptTTF = calcTTFbyDept(rows);
+    const src     = calcSourceBreakdown(rows);
+
+    // Bar scale: 60 days = 100%, target line at 45d
+    const MAX_DAYS = 60;
+    const targetPct = (45 / MAX_DAYS * 100).toFixed(1);
+
+    const ttfBars = deptTTF.map(({ dept, ttf }) => {
+      if (ttf === null) {
+        return `<div class="bar-row">
+          <div class="bar-label">${dept}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:0%"></div>
+            <div class="target-marker" style="left:${targetPct}%" data-label="45d"></div>
+          </div>
+          <div class="bar-value" style="color:var(--mid-gray)">N/A</div>
+        </div>`;
+      }
+      const pct = Math.min(ttf / MAX_DAYS * 100, 100).toFixed(1);
+      return `<div class="bar-row">
+        <div class="bar-label">${dept}</div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${pct}%"></div>
+          <div class="target-marker" style="left:${targetPct}%" data-label="45d"></div>
+        </div>
+        <div class="bar-value">${ttf}d</div>
+      </div>`;
+    }).join('');
+
+    const srcRows = [
+      { label: 'Referral',      pct: src.ref },
+      { label: 'Job Boards',    pct: src.jb  },
+      { label: 'LinkedIn',      pct: src.li  },
+      { label: 'Agency',        pct: src.ag  },
+      { label: 'Campus / Direct', pct: src.cp },
+    ];
+
+    const srcBars = srcRows.map(({ label, pct }) => `
+      <div class="bar-row">
+        <div class="bar-label">${label}</div>
+        <div class="bar-track">
+          <div class="bar-fill bar-fill-blue" style="width:${Math.min(pct, 100)}%"></div>
+        </div>
+        <div class="bar-value">${fmtPct(pct)}</div>
+      </div>`).join('');
+
+    return `<div class="breakdown-grid">
+      <div class="breakdown-card">
+        <div class="breakdown-card-title">
+          Time to Fill by Department
+          <span class="breakdown-subtitle">&nbsp;· avg days &nbsp;· target line = 45d</span>
+        </div>
+        ${ttfBars}
+      </div>
+      <div class="breakdown-card">
+        <div class="breakdown-card-title">
+          Source of Hire
+          <span class="breakdown-subtitle">&nbsp;· % of total &nbsp;· referral target ≥ 15%</span>
+        </div>
+        ${srcBars}
+      </div>
+    </div>`;
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // RENDER — RECRUITER PERFORMANCE TABLE (team view only)
+  // ════════════════════════════════════════════════════════════════
+  function renderRecruiterTable(rows) {
+    const trs = rows.map(r => {
+      const ttf = daysBetween(r.reqOpenDate, r.reqCloseDate);
+      const oar = r.offersExtended
+        ? parseFloat((r.offersAccepted / r.offersExtended * 100).toFixed(1))
+        : null;
+      const src     = calcSourceBreakdown([r]);
+      const srcVals = [
+        { lbl:'Referral',   val: src.ref },
+        { lbl:'Job Boards', val: src.jb  },
+        { lbl:'LinkedIn',   val: src.li  },
+        { lbl:'Agency',     val: src.ag  },
+        { lbl:'Campus',     val: src.cp  }
+      ];
+      const top = srcVals.reduce((a, b) => b.val > a.val ? b : a, { lbl:'—', val:0 }).lbl;
+
+      return `<tr>
+        <td class="recruiter-name">${r.name}</td>
+        <td><span class="dept-badge ${getDeptClass(r.department)}">${r.department}</span></td>
+        <td style="color:var(--mid-gray);font-size:0.775rem">${r.manager}</td>
+        <td style="color:var(--mid-gray);font-size:0.775rem">${r.region}</td>
+        <td class="col-num">${r.reqsOpened}</td>
+        <td class="col-num">${r.reqsClosed}</td>
+        <td class="col-num">${r.activeOpenReqs}</td>
+        <td class="col-num" style="font-weight:700">${r.offersAccepted}</td>
+        <td class="col-num">${ttf !== null ? ttf + 'd' : '—'}</td>
+        <td class="col-num">${oar !== null ? oar + '%' : '—'}</td>
+        <td class="col-num" style="color:var(--mid-gray)">${top}</td>
+      </tr>`;
+    }).join('');
+
+    return `<div class="table-wrap">
+      <table class="perf-table">
+        <thead>
+          <tr>
+            <th>Recruiter</th>
+            <th>Department</th>
+            <th>Manager</th>
+            <th>Region</th>
+            <th class="col-num">Reqs Opened</th>
+            <th class="col-num">Reqs Closed</th>
+            <th class="col-num">Active Reqs</th>
+            <th class="col-num">Total Hires</th>
+            <th class="col-num">TTF</th>
+            <th class="col-num">OAR %</th>
+            <th class="col-num">Top Source</th>
+          </tr>
+        </thead>
+        <tbody>${trs}</tbody>
+      </table>
+    </div>`;
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // RENDER — GOALS FOR NEXT PERIOD
+  // ════════════════════════════════════════════════════════════════
+  function renderGoalsNextPeriod() {
+    const goals = [
+      { name: 'Time to Fill',           target: '≤ 45 days' },
+      { name: 'Submittal → HM Review',  target: '≤ 7 days'  },
+      { name: 'Offer Acceptance Rate',  target: '≥ 80%'     },
+      { name: 'Active Req Load',        target: '8–15 reqs' },
+      { name: 'Referral Source %',      target: '≥ 15%'     }
+    ];
+    const trs = goals.map((g, i) => `
+      <tr>
+        <td class="goal-name">${g.name}</td>
+        <td class="goal-target">${g.target}</td>
+        <td><input type="text" placeholder="Describe action plan…"
+              data-note-key="next-${i}" onblur="saveNotes()"></td>
+      </tr>`).join('');
+
+    return `<div class="table-wrap">
+      <table class="goals-table">
+        <thead>
+          <tr>
+            <th>Goal</th>
+            <th>Next Period Target</th>
+            <th>Action Plan</th>
+          </tr>
+        </thead>
+        <tbody>${trs}</tbody>
+      </table>
+    </div>`;
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // RENDER — IDENTITY PANEL (individual view)
+  // ════════════════════════════════════════════════════════════════
+  function renderIdentityPanel(r) {
+    return `<div class="identity-panel">
+      <div class="identity-field">
+        <label>Recruiter</label>
+        <div class="field-value">${r.name}</div>
+      </div>
+      <div class="identity-field">
+        <label>Manager</label>
+        <div class="field-value">${r.manager}</div>
+      </div>
+      <div class="identity-field">
+        <label>Department</label>
+        <div class="field-value">
+          <span class="dept-badge ${getDeptClass(r.department)}">${r.department}</span>
+        </div>
+      </div>
+      <div class="identity-field">
+        <label>Region</label>
+        <div class="field-value">${r.region}</div>
+      </div>
+      <div class="identity-field">
+        <label>Req Code</label>
+        <div class="field-value" style="font-size:0.82rem;font-weight:500">${r.reqCode}</div>
+      </div>
+      <div class="identity-field">
+        <label>Req Title</label>
+        <div class="field-value" style="font-size:0.82rem">${r.reqTitle}</div>
+      </div>
+      <div class="identity-field">
+        <label>Period Start</label>
+        <input type="text" value="${r.reqOpenDate}" data-note-key="id-start" onblur="saveNotes()">
+      </div>
+      <div class="identity-field">
+        <label>Period End</label>
+        <input type="text" value="${r.reqCloseDate}" data-note-key="id-end" onblur="saveNotes()">
+      </div>
+    </div>`;
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // MAIN RENDER
+  // ════════════════════════════════════════════════════════════════
+  function renderDashboard() {
+    const isAll     = selectedValue === 'all';
+    const rows      = isAll
+      ? currentData
+      : currentData.filter(r => r.name === selectedValue);
+    const recruiter = !isAll && rows.length ? rows[0] : null;
+
+    let html = '';
+
+    // Identity panel — individual view only
+    if (recruiter) {
+      html += renderIdentityPanel(recruiter);
+    }
+
+    // Key Metrics Summary
+    const metaMeta = isAll
+      ? `<span class="section-meta">All ${currentData.length} Recruiters &nbsp;·&nbsp; Q2 2025</span>`
+      : `<span class="section-meta">${recruiter.name} &nbsp;·&nbsp; ${recruiter.department}</span>`;
+
+    html += `<div class="section">
+      <div class="section-header">
+        <div class="section-title">Key Metrics Summary</div>
+        <div class="section-line"></div>
+        ${metaMeta}
+      </div>
+      ${renderKPIs(rows)}
+    </div>`;
+
+    // Goal Tracker
+    html += `<div class="section">
+      <div class="section-header">
+        <div class="section-title">Goal Tracker</div>
+        <div class="section-line"></div>
+        <span class="section-meta">Industry O&amp;P Benchmarks</span>
+      </div>
+      ${renderGoalTracker(rows)}
+    </div>`;
+
+    // Performance Breakdown
+    html += `<div class="section">
+      <div class="section-header">
+        <div class="section-title">Performance Breakdown</div>
+        <div class="section-line"></div>
+      </div>
+      ${renderBreakdown(rows)}
+    </div>`;
+
+    // Recruiter Performance Table — team view only
+    if (isAll) {
+      html += `<div class="section">
+        <div class="section-header">
+          <div class="section-title">Recruiter Performance</div>
+          <div class="section-line"></div>
+          <span class="section-meta">${currentData.length} Recruiters</span>
+        </div>
+        ${renderRecruiterTable(rows)}
+      </div>`;
+    }
+
+    // Goals for Next Period
+    html += `<div class="section">
+      <div class="section-header">
+        <div class="section-title">Goals for Next Period</div>
+        <div class="section-line"></div>
+      </div>
+      ${renderGoalsNextPeriod()}
+    </div>`;
+
+    // Manager Notes
+    html += `<div class="section">
+      <div class="section-header">
+        <div class="section-title">Manager Notes</div>
+        <div class="section-line"></div>
+      </div>
+      <textarea class="notes-area"
+        placeholder="Add manager notes, coaching points, or follow-up actions here…"
+        data-note-key="mgr-notes"
+        onblur="saveNotes()"></textarea>
+    </div>`;
+
+    // Signature Block
+    html += `<div class="section">
+      <div class="section-header">
+        <div class="section-title">Signatures</div>
+        <div class="section-line"></div>
+      </div>
+      <div class="sig-grid">
+        <div class="sig-block">
+          <div class="sig-title">Recruiter Acknowledgment</div>
+          <div style="height:44px"></div>
+          <div class="sig-line">
+            <span>Recruiter Signature</span>
+            <span>Date: ________________</span>
+          </div>
+        </div>
+        <div class="sig-block">
+          <div class="sig-title">Manager Review &amp; Approval</div>
+          <div style="height:44px"></div>
+          <div class="sig-line">
+            <span>Manager Signature</span>
+            <span>Date: ________________</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+    document.getElementById('mainContent').innerHTML = html;
+    restoreNotes();
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // TOAST
+  // ════════════════════════════════════════════════════════════════
+  function showToast(msg) {
+    const t = document.createElement('div');
+    t.className   = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => { try { document.body.removeChild(t); } catch(e) {} }, 3200);
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // INIT
+  // ════════════════════════════════════════════════════════════════
+  document.addEventListener('DOMContentLoaded', () => {
+    populateDropdown();
+    renderDashboard();
+  });
+  </script>
+</body>
+</html>
