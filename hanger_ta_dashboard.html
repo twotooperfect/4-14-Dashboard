@@ -935,6 +935,14 @@
   <!-- ── CONTROLS BAR ── -->
   <div class="controls-bar">
     <div class="controls-inner">
+      <div class="control-group">
+        <span class="control-label">Recruiter</span>
+        <select class="select-control" id="recruiterSelect" onchange="handleSelectChange(this.value)">
+          <option value="all">All Recruiters</option>
+          <!-- recruiter names populated by JS -->
+        </select>
+      </div>
+      <div class="controls-divider"></div>
       <div class="period-group">
         <div class="period-row">
           <span class="control-label">Review Period</span>
@@ -943,14 +951,6 @@
           <label class="period-check"><input type="radio" name="reviewPeriod" value="annual" onchange="handlePeriodChange(this.value)"> Annual</label>
         </div>
         <div class="period-sub" id="periodSub">Q2 2025 &nbsp;&middot;&nbsp; April 1 – June 30, 2025</div>
-      </div>
-      <div class="controls-divider"></div>
-      <div class="control-group">
-        <span class="control-label">Recruiter</span>
-        <select class="select-control" id="recruiterSelect" onchange="handleSelectChange(this.value)">
-          <option value="all">All Recruiters</option>
-          <!-- recruiter names populated by JS -->
-        </select>
       </div>
       <div class="file-info" id="fileInfo"></div>
     </div>
