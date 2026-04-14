@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root {
       --plum:      #403a60;
@@ -477,6 +478,195 @@
       flex-shrink: 0;
     }
 
+    /* ── CHART ── */
+    .chart-card {
+      background: var(--white);
+      border-radius: 6px;
+      padding: 1.25rem 1.375rem 1.375rem;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+    }
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .chart-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--plum);
+    }
+    .chart-toggles {
+      display: flex;
+      gap: 0.375rem;
+    }
+    .chart-toggle {
+      font-family: var(--font);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.25rem 0.75rem;
+      border-radius: 99px;
+      border: 1.5px solid #d4d4d9;
+      background: var(--white);
+      color: var(--mid-gray);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .chart-toggle:hover { border-color: var(--orange); color: var(--orange); }
+    .chart-toggle.active {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: var(--white);
+    }
+    .chart-wrap {
+      position: relative;
+      height: 300px;
+    }
+    /* ── CHART RECRUITER DROPDOWN ── */
+    .chart-recruiter-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.625rem 0 0.875rem;
+      border-bottom: 1px solid #f0f0f3;
+      margin-bottom: 0.875rem;
+    }
+    .chart-recruiter-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--mid-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .chart-recruiter-wrap {
+      position: relative;
+    }
+    .chart-recruiter-btn {
+      font-family: var(--font);
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--dark-gray);
+      background: var(--white);
+      border: 1.5px solid #d4d4d9;
+      border-radius: 4px;
+      padding: 0.35rem 2rem 0.35rem 0.75rem;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236e6f72' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.625rem center;
+      transition: border-color 0.15s;
+      text-align: left;
+      min-width: 180px;
+    }
+    .chart-recruiter-btn:hover,
+    .chart-recruiter-btn.open { border-color: var(--orange); }
+    .chart-recruiter-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 220px;
+      background: var(--white);
+      border: 1.5px solid #d4d4d9;
+      border-radius: 6px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      z-index: 200;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    .chart-recruiter-menu.open { display: block; }
+    .chart-recruiter-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0.875rem;
+      font-size: 0.8rem;
+      color: var(--dark-gray);
+      cursor: pointer;
+      user-select: none;
+    }
+    .chart-recruiter-item:hover { background: var(--ghost); }
+    .chart-recruiter-item input[type="checkbox"] {
+      accent-color: var(--orange);
+      width: 13px;
+      height: 13px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .chart-recruiter-item.all-item {
+      font-weight: 600;
+    }
+    .chart-unselect-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 0.35rem 0.875rem;
+      font-family: var(--font);
+      font-size: 0.775rem;
+      font-weight: 500;
+      color: var(--orange);
+      background: none;
+      border: none;
+      border-top: 1px solid #f0f0f3;
+      border-bottom: 1px solid #f0f0f3;
+      cursor: pointer;
+    }
+    .chart-unselect-btn:hover { background: var(--ghost); }
+
+    /* ── INSIGHTS PANEL ── */
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .insight-card {
+      background: var(--white);
+      border-radius: 6px;
+      border-left: 3px solid var(--plum);
+      padding: 1rem 1.125rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+    }
+    .insight-icon {
+      font-size: 1.3rem;
+      line-height: 1;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    .insight-body { min-width: 0; }
+    .insight-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--mid-gray);
+      margin-bottom: 0.2rem;
+    }
+    .insight-value {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--dark-gray);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .insight-detail {
+      font-size: 0.72rem;
+      color: var(--mid-gray);
+      margin-top: 0.15rem;
+    }
+    @media (max-width: 960px) { .insights-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 620px) { .insights-grid { grid-template-columns: 1fr; } }
+
     /* ── RECRUITER PERFORMANCE TABLE ── */
     .perf-table {
       width: 100%;
@@ -929,6 +1119,9 @@
   // ════════════════════════════════════════════════════════════════
   let currentData    = [...SEED_DATA];
   let selectedValue  = 'all';
+  let chartInstance          = null;
+  let chartMetrics           = ['hires']; // array — multiple can be active
+  let chartSelectedRecruiters = null;     // null = all; else array of names
 
   // ════════════════════════════════════════════════════════════════
   // UTILITIES
@@ -1177,8 +1370,9 @@
         }
 
         if (data.length > 0) {
-          currentData   = data;
-          selectedValue = 'all';
+          currentData             = data;
+          selectedValue           = 'all';
+          chartSelectedRecruiters = null;
           populateDropdown();
           renderDashboard();
           document.getElementById('fileInfo').innerHTML =
@@ -1194,6 +1388,340 @@
     };
     reader.readAsArrayBuffer(file);
     event.target.value = '';
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // CHART — Recruiter Comparison
+  // ════════════════════════════════════════════════════════════════
+  const CHART_METRICS = {
+    hires: {
+      label: 'Total Hires',
+      target: 10, targetLabel: 'Target: 10',
+      unit: '',
+      color: '#ff5f2f',
+      getValue: r => r.offersAccepted || 0
+    },
+    ttf: {
+      label: 'Time to Fill (days)',
+      target: 45, targetLabel: 'Target: 45d',
+      unit: 'd',
+      color: '#403a60',
+      getValue: r => daysBetween(r.reqOpenDate, r.reqCloseDate)
+    },
+    oar: {
+      label: 'Offer Acceptance Rate (%)',
+      target: 80, targetLabel: 'Target: 80%',
+      unit: '%',
+      color: '#00b3f0',
+      getValue: r => r.offersExtended
+        ? parseFloat((r.offersAccepted / r.offersExtended * 100).toFixed(1))
+        : null
+    }
+  };
+
+  function getChartBtnLabel() {
+    if (!chartSelectedRecruiters) return 'All Recruiters';
+    if (chartSelectedRecruiters.length === 0) return 'None Selected';
+    if (chartSelectedRecruiters.length === 1) return chartSelectedRecruiters[0].split(' ')[0];
+    return `${chartSelectedRecruiters.length} Recruiters Selected`;
+  }
+
+  function renderChartSection() {
+    const allChecked = !chartSelectedRecruiters;
+    const items = currentData.map(r => {
+      const checked = !chartSelectedRecruiters || chartSelectedRecruiters.includes(r.name);
+      return `<label class="chart-recruiter-item">
+        <input type="checkbox" value="${r.name}" ${checked ? 'checked' : ''}
+          onchange="handleRecruiterCheck(this)">
+        <span>${r.name}</span>
+      </label>`;
+    }).join('');
+
+    return `<div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-toggles">
+          <button class="chart-toggle${chartMetrics.includes('hires') ? ' active' : ''}"
+            onclick="toggleChartMetric('hires', this)">Total Hires</button>
+          <button class="chart-toggle${chartMetrics.includes('ttf') ? ' active' : ''}"
+            onclick="toggleChartMetric('ttf', this)">Time to Fill</button>
+          <button class="chart-toggle${chartMetrics.includes('oar') ? ' active' : ''}"
+            onclick="toggleChartMetric('oar', this)">Acceptance Rate</button>
+        </div>
+      </div>
+      <div class="chart-recruiter-row">
+        <span class="chart-recruiter-label">Recruiters</span>
+        <div class="chart-recruiter-wrap" id="recruiterDropdownWrap">
+          <button class="chart-recruiter-btn" id="recruiterDropBtn"
+            onclick="toggleRecruiterMenu(event)">${getChartBtnLabel()}</button>
+          <div class="chart-recruiter-menu" id="recruiterMenu">
+            <label class="chart-recruiter-item all-item">
+              <input type="checkbox" id="checkAllRecruiters" ${allChecked ? 'checked' : ''}
+                onchange="handleAllCheck(this)">
+              <span>All Recruiters</span>
+            </label>
+            <button class="chart-unselect-btn" onclick="handleUnselectAll()">Unselect All</button>
+            ${items}
+          </div>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="recruiterChart"></canvas></div>
+    </div>`;
+  }
+
+  function getChartRows() {
+    if (!chartSelectedRecruiters) return currentData;
+    return currentData.filter(r => chartSelectedRecruiters.includes(r.name));
+  }
+
+  function initChart(rows) {
+    const canvas = document.getElementById('recruiterChart');
+    if (!canvas) return;
+    if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+    if (!rows.length) {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#6e6f72';
+      ctx.font = "13px 'IBM Plex Sans', sans-serif";
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Select at least one recruiter to display the chart.', canvas.width / 2, canvas.height / 2);
+      return;
+    }
+
+    Chart.defaults.font.family = "'IBM Plex Sans', sans-serif";
+
+    const labels   = rows.map(r => r.name.split(' ')[0]);
+    const datasets = [];
+
+    chartMetrics.forEach((key, i) => {
+      const cfg = CHART_METRICS[key];
+      datasets.push({
+        type: 'bar',
+        label: cfg.label,
+        data: rows.map(r => cfg.getValue(r)),
+        backgroundColor: cfg.color + 'bb',
+        borderColor: cfg.color,
+        borderWidth: 1,
+        borderRadius: 4,
+        borderSkipped: false,
+        order: 2
+      });
+      // target line per metric only when one metric is active (avoids clutter)
+      if (chartMetrics.length === 1) {
+        datasets.push({
+          type: 'line',
+          label: cfg.targetLabel,
+          data: rows.map(() => cfg.target),
+          borderColor: '#4a4f54',
+          borderWidth: 1.5,
+          borderDash: [5, 4],
+          pointRadius: 0,
+          fill: false,
+          tension: 0,
+          order: 1
+        });
+      }
+    });
+
+    chartInstance = new Chart(canvas, {
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            align: 'end',
+            labels: { font: { size: 11 }, boxWidth: 14, padding: 12 }
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                const key = chartMetrics[ctx.datasetIndex] || chartMetrics[0];
+                const cfg = CHART_METRICS[key];
+                const v   = ctx.raw;
+                if (v === null || v === undefined) return ` ${ctx.dataset.label}: No data`;
+                return ` ${ctx.dataset.label}: ${v}${cfg ? cfg.unit : ''}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { size: 10 }, maxRotation: 35, minRotation: 35 }
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: '#f0f0f3' },
+            ticks: { font: { size: 10 } }
+          }
+        }
+      }
+    });
+  }
+
+  function toggleChartMetric(metric, btn) {
+    if (chartMetrics.includes(metric)) {
+      if (chartMetrics.length === 1) return; // keep at least one
+      chartMetrics = chartMetrics.filter(m => m !== metric);
+      btn.classList.remove('active');
+    } else {
+      chartMetrics.push(metric);
+      btn.classList.add('active');
+    }
+    initChart(getChartRows());
+  }
+
+  function toggleRecruiterMenu(event) {
+    event.stopPropagation();
+    const menu = document.getElementById('recruiterMenu');
+    const btn  = document.getElementById('recruiterDropBtn');
+    if (!menu) return;
+    const isOpen = menu.classList.toggle('open');
+    btn.classList.toggle('open', isOpen);
+  }
+
+  function handleAllCheck(checkbox) {
+    if (checkbox.checked) {
+      chartSelectedRecruiters = null;
+      document.querySelectorAll('#recruiterMenu input[type="checkbox"][value]')
+        .forEach(cb => { cb.checked = true; });
+    } else {
+      // Don't allow unchecking All with no individuals — restore it
+      checkbox.checked = true;
+    }
+    updateDropdownBtn();
+    initChart(getChartRows());
+  }
+
+  function handleRecruiterCheck(checkbox) {
+    const name    = checkbox.value;
+    const allCb   = document.getElementById('checkAllRecruiters');
+    const checked = [...document.querySelectorAll('#recruiterMenu input[type="checkbox"][value]')]
+      .filter(cb => cb.checked).map(cb => cb.value);
+
+    // Prevent deselecting the last recruiter
+    if (checked.length === 0) { checkbox.checked = true; return; }
+
+    if (checked.length === currentData.length) {
+      chartSelectedRecruiters = null;
+      if (allCb) allCb.checked = true;
+    } else {
+      chartSelectedRecruiters = checked;
+      if (allCb) allCb.checked = false;
+    }
+
+    updateDropdownBtn();
+    initChart(getChartRows());
+  }
+
+  function updateDropdownBtn() {
+    const btn = document.getElementById('recruiterDropBtn');
+    if (btn) btn.textContent = getChartBtnLabel();
+  }
+
+  function handleUnselectAll() {
+    chartSelectedRecruiters = [];
+    const allCb = document.getElementById('checkAllRecruiters');
+    if (allCb) allCb.checked = false;
+    document.querySelectorAll('#recruiterMenu input[type="checkbox"][value]')
+      .forEach(cb => { cb.checked = false; });
+    updateDropdownBtn();
+    initChart(getChartRows());
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // RENDER — AUTO-GENERATED INSIGHTS (team view only)
+  // ════════════════════════════════════════════════════════════════
+  function renderInsights(rows) {
+    // 1. Top Performer — most hires
+    const topPerformer = rows.reduce((a, b) => (b.offersAccepted || 0) > (a.offersAccepted || 0) ? b : a, rows[0]);
+
+    // 2. Fastest TTF — lowest individual TTF
+    const withTTF = rows
+      .map(r => ({ r, ttf: daysBetween(r.reqOpenDate, r.reqCloseDate) }))
+      .filter(x => x.ttf !== null);
+    const fastestTTF = withTTF.length
+      ? withTTF.reduce((a, b) => b.ttf < a.ttf ? b : a)
+      : null;
+
+    // 3. Highest OAR — best offer acceptance rate (min 1 offer extended)
+    const withOAR = rows
+      .filter(r => r.offersExtended > 0)
+      .map(r => ({ r, oar: r.offersAccepted / r.offersExtended * 100 }));
+    const highestOAR = withOAR.length
+      ? withOAR.reduce((a, b) => b.oar > a.oar ? b : a)
+      : null;
+
+    // 4. Most Active Pipeline — highest totalSubmissions
+    const mostActive = rows.reduce((a, b) => (b.totalSubmissions || 0) > (a.totalSubmissions || 0) ? b : a, rows[0]);
+
+    // 5. Strongest Referral Source — dept with highest referral %
+    const depts = ['Clinical', 'Allied Health', 'RCM', 'Operations'];
+    const deptReferral = depts.map(dept => {
+      const dRows = rows.filter(r => r.department === dept);
+      const src = calcSourceBreakdown(dRows);
+      return { dept, ref: src.ref };
+    }).filter(d => d.ref > 0);
+    const strongestReferral = deptReferral.length
+      ? deptReferral.reduce((a, b) => b.ref > a.ref ? b : a)
+      : null;
+
+    // 6. Available Capacity — recruiter with fewest active reqs
+    const lowestLoad = rows.reduce((a, b) => (b.activeOpenReqs ?? 99) < (a.activeOpenReqs ?? 99) ? b : a, rows[0]);
+
+    const cards = [
+      {
+        icon: '🏆',
+        label: 'Top Performer',
+        value: topPerformer?.name || '—',
+        detail: `${topPerformer?.offersAccepted || 0} hires · ${topPerformer?.department || ''}`
+      },
+      {
+        icon: '⚡',
+        label: 'Fastest Time to Fill',
+        value: fastestTTF ? fastestTTF.r.name : '—',
+        detail: fastestTTF ? `${fastestTTF.ttf} days · ${fastestTTF.r.department}` : 'No date data'
+      },
+      {
+        icon: '✅',
+        label: 'Highest Offer Acceptance',
+        value: highestOAR ? highestOAR.r.name : '—',
+        detail: highestOAR ? `${highestOAR.oar.toFixed(1)}% OAR · ${highestOAR.r.department}` : 'No data'
+      },
+      {
+        icon: '📥',
+        label: 'Most Active Pipeline',
+        value: mostActive?.name || '—',
+        detail: `${mostActive?.totalSubmissions || 0} submissions · ${mostActive?.department || ''}`
+      },
+      {
+        icon: '🤝',
+        label: 'Strongest Referral Dept',
+        value: strongestReferral ? strongestReferral.dept : '—',
+        detail: strongestReferral ? `${strongestReferral.ref.toFixed(1)}% of hires via referral` : 'No referral data'
+      },
+      {
+        icon: '📋',
+        label: 'Available Capacity',
+        value: lowestLoad?.name || '—',
+        detail: `${lowestLoad?.activeOpenReqs ?? 0} active reqs · ${lowestLoad?.department || ''}`
+      }
+    ];
+
+    const cardHtml = cards.map(c => `
+      <div class="insight-card">
+        <div class="insight-icon">${c.icon}</div>
+        <div class="insight-body">
+          <div class="insight-label">${c.label}</div>
+          <div class="insight-value">${c.value}</div>
+          <div class="insight-detail">${c.detail}</div>
+        </div>
+      </div>`).join('');
+
+    return `<div class="insights-grid">${cardHtml}</div>`;
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -1570,6 +2098,30 @@
       ${renderKPIs(rows)}
     </div>`;
 
+    // Insights (team view only)
+    if (isAll) {
+      html += `<div class="section">
+        <div class="section-header">
+          <div class="section-title">Insights</div>
+          <div class="section-line"></div>
+          <span class="section-meta">Auto-calculated from current data</span>
+        </div>
+        ${renderInsights(rows)}
+      </div>`;
+    }
+
+    // Recruiter Comparison Chart (team view only)
+    if (isAll) {
+      html += `<div class="section">
+        <div class="section-header">
+          <div class="section-title">Team Dashboard</div>
+          <div class="section-line"></div>
+          <span class="section-meta">Toggle metric to switch view</span>
+        </div>
+        ${renderChartSection()}
+      </div>`;
+    }
+
     // Goal Tracker
     html += `<div class="section">
       <div class="section-header">
@@ -1583,7 +2135,7 @@
     // Performance Breakdown
     html += `<div class="section">
       <div class="section-header">
-        <div class="section-title">Performance Breakdown</div>
+        <div class="section-title">Breakdown</div>
         <div class="section-line"></div>
       </div>
       ${renderBreakdown(rows)}
@@ -1593,7 +2145,7 @@
     if (isAll) {
       html += `<div class="section">
         <div class="section-header">
-          <div class="section-title">Recruiter Performance</div>
+          <div class="section-title">Individual Recruiter Metrics</div>
           <div class="section-line"></div>
           <span class="section-meta">${currentData.length} Recruiters</span>
         </div>
@@ -1601,55 +2153,59 @@
       </div>`;
     }
 
-    // Goals for Next Period
-    html += `<div class="section">
-      <div class="section-header">
-        <div class="section-title">Goals for Next Period</div>
-        <div class="section-line"></div>
-      </div>
-      ${renderGoalsNextPeriod()}
-    </div>`;
+    // Goals for Next Period + Manager Notes — individual view only
+    if (!isAll) {
+      html += `<div class="section">
+        <div class="section-header">
+          <div class="section-title">Goals for Next Period</div>
+          <div class="section-line"></div>
+        </div>
+        ${renderGoalsNextPeriod()}
+      </div>`;
 
-    // Manager Notes
-    html += `<div class="section">
-      <div class="section-header">
-        <div class="section-title">Manager Notes</div>
-        <div class="section-line"></div>
-      </div>
-      <textarea class="notes-area"
-        placeholder="Add manager notes, coaching points, or follow-up actions here…"
-        data-note-key="mgr-notes"
-        onblur="saveNotes()"></textarea>
-    </div>`;
+      html += `<div class="section">
+        <div class="section-header">
+          <div class="section-title">Manager Notes</div>
+          <div class="section-line"></div>
+        </div>
+        <textarea class="notes-area"
+          placeholder="Add manager notes, coaching points, or follow-up actions here…"
+          data-note-key="mgr-notes"
+          onblur="saveNotes()"></textarea>
+      </div>`;
+    }
 
-    // Signature Block
-    html += `<div class="section">
-      <div class="section-header">
-        <div class="section-title">Signatures</div>
-        <div class="section-line"></div>
-      </div>
-      <div class="sig-grid">
-        <div class="sig-block">
-          <div class="sig-title">Recruiter Acknowledgment</div>
-          <div style="height:44px"></div>
-          <div class="sig-line">
-            <span>Recruiter Signature</span>
-            <span>Date: ________________</span>
+    // Signature Block — individual view only
+    if (!isAll) {
+      html += `<div class="section">
+        <div class="section-header">
+          <div class="section-title">Signatures</div>
+          <div class="section-line"></div>
+        </div>
+        <div class="sig-grid">
+          <div class="sig-block">
+            <div class="sig-title">Recruiter Acknowledgment</div>
+            <div style="height:44px"></div>
+            <div class="sig-line">
+              <span>Recruiter Signature</span>
+              <span>Date: ________________</span>
+            </div>
+          </div>
+          <div class="sig-block">
+            <div class="sig-title">Manager Review &amp; Approval</div>
+            <div style="height:44px"></div>
+            <div class="sig-line">
+              <span>Manager Signature</span>
+              <span>Date: ________________</span>
+            </div>
           </div>
         </div>
-        <div class="sig-block">
-          <div class="sig-title">Manager Review &amp; Approval</div>
-          <div style="height:44px"></div>
-          <div class="sig-line">
-            <span>Manager Signature</span>
-            <span>Date: ________________</span>
-          </div>
-        </div>
-      </div>
-    </div>`;
+      </div>`;
+    }
 
     document.getElementById('mainContent').innerHTML = html;
     restoreNotes();
+    if (isAll) initChart(getChartRows());
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -1669,6 +2225,14 @@
   document.addEventListener('DOMContentLoaded', () => {
     populateDropdown();
     renderDashboard();
+  });
+
+  // Close recruiter dropdown when clicking outside
+  document.addEventListener('click', () => {
+    const menu = document.getElementById('recruiterMenu');
+    const btn  = document.getElementById('recruiterDropBtn');
+    if (menu) menu.classList.remove('open');
+    if (btn)  btn.classList.remove('open');
   });
   </script>
 </body>
